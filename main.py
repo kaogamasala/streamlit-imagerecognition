@@ -2,7 +2,7 @@ import streamlit as st
 import io
 import requests
 import json
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 st.title('顔認識アプリ')
 
@@ -37,7 +37,7 @@ if uploaded_file is not None:
         results = res.json()
         for result in results:
             rect = result['faceRectangle']
-            
+
             attri = result['faceAttributes']
             age = str(attri['age'])
             happiness_key = list(attri['emotion'].keys())[4]
