@@ -20,6 +20,7 @@ if uploaded_file is not None:
     with io.BytesIO() as output:
         img.save(output, format="JPEG")
         binary_img = output.getvalue()
+        
         headers = {
             'Content-Type': 'application/octet-stream',
             'Ocp-Apim-Subscription-Key': subscription_key
@@ -30,10 +31,24 @@ if uploaded_file is not None:
         }
         res = requests.post(face_api_url, params=params, headers=headers, data=binary_img)
 
+        fontpath = "RictyDiminished-Regular.ttf"
+        font = ImageFont.truetype(fontpath, 80)
+
         results = res.json()
         for result in results:
             rect = result['faceRectangle']
+            
+            attri = result['faceAttributes']
+            age = str(attri['age'])
+            happiness_key = list(attri['emotion'].keys())[4]
+            happiness_value = list(attri['emotion'].values())[4]
+            happiness_value_str = str(happiness_value)
+    
             draw = ImageDraw.Draw(img)
             draw.rectangle([(rect['left'], rect['top']), (rect['left']+rect['width'],rect['top']+rect['height'])], fill=None, outline='green', width=10)
-    
+            draw.text((rect['left'], rect['top']-200), "性別:"+ attri['gender'], font=font,fill='red')
+            draw.text((rect['left'], rect['top']-100), "年齢:"+ age, font=font,fill='red')
+            draw.text((rect['left'], rect['top']-400), happiness_key+":", font=font,fill='red')
+            draw.text((rect['left'], rect['top']-300), happiness_value_str, font=font,fill='red')
+
         st.image(img, caption='Uploaded Image.', use_column_width=True)
